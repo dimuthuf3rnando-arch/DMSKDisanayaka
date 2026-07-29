@@ -856,6 +856,14 @@
     font-size: 0.85rem;
     color: var(--sand);
   }
+  .form-error {
+    display: none;
+    background: rgba(183,90,74,0.12);
+    border: 1px solid rgba(183,90,74,0.45);
+    padding: 1rem 1.2rem;
+    font-size: 0.85rem;
+    color: #e0a99c;
+  }
 
   /* ── FOOTER ── */
   footer {
@@ -1288,20 +1296,20 @@
         <div class="form-row">
           <div class="form-field">
             <label for="fname">First Name</label>
-            <input type="text" id="fname" placeholder="Elara" required>
+            <input type="text" id="fname" name="fname" placeholder="Elara" required>
           </div>
           <div class="form-field">
             <label for="lname">Last Name</label>
-            <input type="text" id="lname" placeholder="Voss" required>
+            <input type="text" id="lname" name="lname" placeholder="Voss" required>
           </div>
         </div>
         <div class="form-field">
           <label for="email">Email Address</label>
-          <input type="email" id="email" placeholder="you@example.com" required>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required>
         </div>
         <div class="form-field">
           <label for="project-type">Project Type</label>
-          <select id="project-type">
+          <select id="project-type" name="project-type">
             <option value="" disabled selected>Select a category</option>
             <option>Residential Building</option>
             <option>Commercial Building</option>
@@ -1313,7 +1321,7 @@
         </div>
         <div class="form-field">
           <label for="budget">Approximate Budget</label>
-          <select id="budget">
+          <select id="budget" name="budget">
             <option value="" disabled selected>Select a range</option>
             <option>Under LKR 5M</option>
             <option>LKR 5M – 15M</option>
@@ -1324,11 +1332,15 @@
         </div>
         <div class="form-field">
           <label for="message">Your Message</label>
-          <textarea id="message" placeholder="Tell us about your project — location, type, requirements…"></textarea>
+          <textarea id="message" name="message" placeholder="Tell us about your project — location, type, requirements…"></textarea>
         </div>
         <button type="submit" class="btn-submit"><span>Send Enquiry</span></button>
         <div class="form-success" id="formSuccess">
-          Thank you — we'll be in touch within two business days.
+          Thank you — we've emailed you a confirmation. We'll be in touch within two business days.
+        </div>
+        <div class="form-error" id="formError">
+          Something went wrong sending your enquiry. Please try again, or email us directly at
+          <a href="mailto:sanjayad7cad@gmail.com" style="color:#e0a99c;text-decoration:underline;">sanjayad7cad@gmail.com</a>.
         </div>
       </form>
     </div>
@@ -1351,7 +1363,8 @@
     if (!preloader) return;
     const fill = document.getElementById('preloaderBarFill');
     const pctEl = document.getElementById('preloaderPct');
-    const minDuration = 1400;
+    const minDuration = 700;
+    const maxWait = 8000; // hard safety cap, in case an image host stalls
     const start = Date.now();
     const htmlEl = document.documentElement;
     htmlEl.style.overflow = 'hidden';
@@ -1367,6 +1380,35 @@
     }
     requestAnimationFrame(tick);
 
+    // Explicitly preload the hero background images. Divs with inline
+    // background-image are NOT reliably tracked by window's 'load' event
+    // across browsers, which was letting the preloader fade out before the
+    // hero was actually painted — the visible "gap". Waiting on real Image()
+    // objects for these specific URLs guarantees they're decoded and ready.
+    const heroUrls = Array.from(document.querySelectorAll('.hero-slide'))
+      .map(el => {
+        const m = el.style.backgroundImage.match(/url\(["']?(.*?)["']?\)/);
+        return m ? m[1] : null;
+      })
+      .filter(Boolean);
+
+    const imagesReady = Promise.all(heroUrls.map(src => new Promise(resolve => {
+      const img = new Image();
+      img.onload = resolve;
+      img.onerror = resolve; // don't block forever on a broken image
+      img.src = src;
+    })));
+
+    const fontsReady = (document.fonts && document.fonts.ready)
+      ? document.fonts.ready.catch(() => {})
+      : Promise.resolve();
+
+    const pageLoaded = (document.readyState === 'complete')
+      ? Promise.resolve()
+      : new Promise(resolve => window.addEventListener('load', resolve));
+
+    const timeoutFallback = new Promise(resolve => setTimeout(resolve, maxWait));
+
     function finish() {
       const elapsed = Date.now() - start;
       const wait = Math.max(0, minDuration - elapsed);
@@ -1375,19 +1417,22 @@
         pctEl.textContent = '100%';
         setTimeout(function () {
           preloader.classList.add('preloader-done');
-          htmlEl.classList.add('loaded');
           htmlEl.style.overflow = '';
-          setTimeout(function () { preloader.remove(); }, 800);
-        }, 250);
+          // Wait for the preloader's own fade-out (0.7s, set in CSS) to fully
+          // finish before revealing the hero, so the hero-name animation
+          // never plays underneath a still-visible preloader.
+          setTimeout(function () {
+            htmlEl.classList.add('loaded');
+            preloader.remove();
+          }, 700);
+        }, 100);
       }, wait);
     }
-    if (document.readyState === 'complete') {
-      finish();
-    } else {
-      window.addEventListener('load', finish);
-      // safety net in case 'load' never fires (slow/broken image host)
-      setTimeout(finish, 6000);
-    }
+
+    Promise.race([
+      Promise.all([imagesReady, fontsReady, pageLoaded]),
+      timeoutFallback
+    ]).then(finish);
   })();
 
   /* ── HERO SLIDER (swipe + auto-advance) ── */
@@ -1637,15 +1682,68 @@
   });
 
   /* ── CONTACT FORM ── */
+  // Replace this with your own deployed Apps Script Web App URL
+  // (see the setup guide provided alongside this file).
+  const CONTACT_ENDPOINT = 'https://script.google.com/macros/s/PASTE_YOUR_DEPLOYMENT_ID_HERE/exec';
+
   document.getElementById('contactForm').addEventListener('submit', e => {
     e.preventDefault();
-    const btn = e.target.querySelector('.btn-submit');
+    const form = e.target;
+    const btn = form.querySelector('.btn-submit');
+    const btnLabel = btn.querySelector('span');
+    const successEl = document.getElementById('formSuccess');
+    const errorEl = document.getElementById('formError');
+
+    successEl.style.display = 'none';
+    errorEl.style.display = 'none';
+
+    const fname = document.getElementById('fname').value.trim();
+    const lname = document.getElementById('lname').value.trim();
+    const email = document.getElementById('email').value.trim();
+
+    if (!fname || !lname || !email) {
+      errorEl.textContent = 'Please fill in your name and email address before sending.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    const payload = {
+      fname,
+      lname,
+      email,
+      projectType: document.getElementById('project-type').value,
+      budget: document.getElementById('budget').value,
+      message: document.getElementById('message').value.trim(),
+      page: window.location.href,
+      submittedAt: new Date().toISOString()
+    };
+
     btn.disabled = true;
-    btn.querySelector('span').textContent = 'Sending…';
-    setTimeout(() => {
-      document.getElementById('formSuccess').style.display = 'block';
-      btn.style.display = 'none';
-    }, 1200);
+    const originalLabel = btnLabel.textContent;
+    btnLabel.textContent = 'Sending…';
+
+    fetch(CONTACT_ENDPOINT, {
+      method: 'POST',
+      // text/plain avoids a CORS preflight request, which the Apps Script
+      // web app endpoint does not need to handle separately.
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.result === 'success') {
+          successEl.style.display = 'block';
+          btn.style.display = 'none';
+          form.reset();
+        } else {
+          throw new Error((data && data.message) || 'Unknown error');
+        }
+      })
+      .catch(() => {
+        errorEl.style.display = 'block';
+        btn.disabled = false;
+        btnLabel.textContent = originalLabel;
+      });
   });
 </script>
 </body>
