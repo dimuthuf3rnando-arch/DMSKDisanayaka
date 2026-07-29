@@ -5,6 +5,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>D.M.S.K. Dissanayaka — Drafting Technologist</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -144,19 +148,17 @@
     background: rgba(44,44,42,0.55);
   }
   .nav-logo {
-    font-family: var(--serif);
-    font-weight: 300;
-    font-size: clamp(0.85rem, 3.6vw, 1.1rem);
-    letter-spacing: 0.06em;
-    color: inherit;
-    text-decoration: none;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 62vw;
+    display: block;
     flex-shrink: 1;
-    transition: color 0.45s cubic-bezier(0.65,0,0.35,1);
   }
+  .nav-logo img {
+    display: block;
+    height: clamp(34px, 6vw, 44px);
+    width: auto;
+  }
+  .nav-logo .logo-dark { display: none; }
+  nav.nav-dark .nav-logo .logo-light { display: none; }
+  nav.nav-dark .nav-logo .logo-dark { display: block; }
   .nav-links {
     display: flex;
     gap: 2.5rem;
@@ -1049,7 +1051,10 @@
 
 <!-- Nav -->
 <nav id="navbar">
-  <a class="nav-logo" href="#">D.M.S.K. Dissanayaka</a>
+  <a class="nav-logo" href="#">
+  <img class="logo-light" src="logo-nav-light.png" alt="D.M.S.K. Dissanayaka">
+  <img class="logo-dark" src="logo-nav-dark.png" alt="D.M.S.K. Dissanayaka">
+</a>
   <ul class="nav-links">
     <li><a href="#portfolio">Work</a></li>
     <li><a href="#about">Studio</a></li>
