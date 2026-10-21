@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>D.M.S.K. Dissanayaka</title>
+<meta name="description" content="D.M.S.K. Dissanayaka — Drafting Technologist. Complete architectural design, council approval plans, BOQ &amp; estimates, structural, MEP and interior design services.">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
@@ -27,6 +28,7 @@
 
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
     font-size: 16px;
     scrollbar-width: none;       /* Firefox */
     -ms-overflow-style: none;    /* IE / legacy Edge */
@@ -90,7 +92,7 @@
     opacity: 0;
     animation: plRise 0.8s cubic-bezier(0.16,1,0.3,1) 0.3s forwards;
   }
-  .preloader-word em { font-style: italic; color: var(--sand); }
+  .preloader-word em { font-style: italic; color: var(--white); }
   @keyframes plRise { to { opacity: 1; } }
   .preloader-meter {
     display: flex;
@@ -117,7 +119,7 @@
     font-family: var(--sans);
     font-size: 0.62rem;
     letter-spacing: 0.12em;
-    color: var(--taupe);
+    color: var(--sand);
     min-width: 2.4em;
   }
 
@@ -256,13 +258,12 @@
   /* ── HERO ── */
   #hero {
     position: relative;
-    height: 100vh;
-    height: 100svh;
     min-height: 600px;
+    min-height: max(600px, 100svh);
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    padding: 0 4vw 5vw;
+    padding: 6rem 4vw 5vw;
     padding-bottom: max(5vw, calc(5vw + env(safe-area-inset-bottom)));
     overflow: hidden;
   }
@@ -386,6 +387,17 @@
     opacity: 1;
     transform: none;
   }
+  /* No-JS fallback: show content that JS would otherwise reveal */
+  html:not(.js) .reveal,
+  html:not(.js) .project-card,
+  html:not(.js) .award-row {
+    opacity: 1;
+    transform: none;
+  }
+  html:not(.js) .hero-slide:first-child {
+    opacity: 0.94;
+    transform: scale(1);
+  }
 
   /* ── SECTION BASE ── */
   section { padding: 7rem 4vw; }
@@ -394,7 +406,7 @@
     font-weight: 500;
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: var(--taupe);
+    color: #6b5f4e;
     margin-bottom: 3rem;
     display: flex;
     align-items: center;
@@ -439,7 +451,7 @@
     font-weight: 400;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--taupe);
+    color: #6b5f4e;
     padding: 0.45rem 1.1rem;
     cursor: pointer;
     transition: background 0.35s cubic-bezier(0.65,0,0.35,1), color 0.35s cubic-bezier(0.65,0,0.35,1), border-color 0.35s cubic-bezier(0.65,0,0.35,1);
@@ -488,6 +500,15 @@
     transition: opacity 0.8s cubic-bezier(0.65,0,0.35,1), transform 0.8s cubic-bezier(0.65,0,0.35,1);
   }
   .project-card.visible { opacity: 1; transform: translateY(0); }
+  /* When filtering, drop the editorial grid placement and hide non-matches */
+  .portfolio-grid.filtering {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+  }
+  .portfolio-grid.filtering .project-card {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    aspect-ratio: 4/3 !important;
+  }
   .project-overlay {
     position: absolute;
     inset: 0;
@@ -528,6 +549,93 @@
     }
     .project-overlay h3,
     .project-meta { transform: translateY(0); }
+  }
+
+  /* ── CARD STACK (Tinder-style) ── */
+  .card-stack-wrap {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 0 0 2rem;
+  }
+  .card-stack {
+    position: relative;
+    width: 100%;
+    height: clamp(480px, 68vh, 640px);
+    margin: 0 auto;
+  }
+  .stack-card {
+    position: absolute;
+    inset: 0;
+    border-radius: 0;
+    overflow: hidden;
+    background: var(--stone);
+    box-shadow: 0 28px 80px rgba(44,44,42,0.3);
+    cursor: grab;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-drag: none;
+    transition: transform 0.25s cubic-bezier(0.22, 0.9, 0.3, 1), opacity 0.25s cubic-bezier(0.22, 0.9, 0.3, 1);
+    will-change: transform, opacity;
+  }
+  .stack-card.is-dragging { transition: none; cursor: grabbing; }
+  .stack-card img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+    filter: saturate(0.9);
+  }
+  .stack-card .card-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(44,44,42,0.78) 0%, rgba(44,44,42,0.15) 55%, transparent 100%);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 1.8rem;
+    color: var(--white);
+    pointer-events: none;
+  }
+  .stack-card .card-overlay h3 {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 300;
+    margin-bottom: 0.3rem;
+  }
+  .stack-card .card-overlay p {
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sand);
+  }
+  .stack-controls {
+    display: flex; justify-content: center; gap: 1.5rem;
+    margin-top: 1.75rem;
+  }
+  .stack-btn {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    border: 1px solid var(--stone);
+    background: var(--white);
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.65,0,0.35,1), background 0.25s, border-color 0.25s, color 0.25s;
+    color: #6b5f4e;
+  }
+  .stack-btn:hover { transform: scale(1.08); }
+  .stack-btn--no:hover { background: #fce8e4; border-color: #d98a7a; color: #b75a4a; }
+  .stack-btn--yes:hover { background: #e6f0e4; border-color: #7fa87a; color: #4a7a45; }
+  .stack-hint {
+    text-align: center;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6b5f4e;
+    margin-top: 1.25rem;
+  }
+  @media (max-width: 768px) {
+    .card-stack-wrap { max-width: 100%; }
+    .card-stack { height: clamp(400px, 60vh, 520px); }
+  }
+  @media (max-width: 480px) {
+    .card-stack { height: clamp(360px, 58vh, 460px); }
   }
 
   /* ── ABOUT ── */
@@ -597,7 +705,7 @@
     font-size: 0.65rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--taupe);
+    color: var(--sand);
     margin-top: 0.4rem;
   }
 
@@ -611,7 +719,7 @@
     line-height: 1.25;
     margin-bottom: 4.5rem;
   }
-  .services-intro em { font-style: italic; color: var(--taupe); }
+  .services-intro em { font-style: italic; color: #6b5f4e; }
   .services-list { border-top: 1px solid var(--sand); }
   .service-item {
     display: grid;
@@ -623,7 +731,9 @@
     transition: background 0.4s cubic-bezier(0.65,0,0.35,1), padding 0.4s cubic-bezier(0.65,0,0.35,1), margin 0.4s cubic-bezier(0.65,0,0.35,1);
     cursor: pointer;
   }
-  .service-item:hover { background: rgba(250,250,248,0.4); padding-left: 1rem; padding-right: 1rem; margin: 0 -1rem; }
+  @media (hover: hover) {
+    .service-item:hover { background: rgba(250,250,248,0.4); padding-left: 1rem; padding-right: 1rem; margin: 0 -1rem; }
+  }
   .service-name {
     font-family: var(--serif);
     font-size: 1.35rem;
@@ -632,7 +742,7 @@
   .service-desc {
     font-size: 0.85rem;
     font-weight: 300;
-    color: var(--taupe);
+    color: #6b5f4e;
     line-height: 1.7;
   }
   .service-arrow {
@@ -646,17 +756,18 @@
   .service-popup {
     position: fixed;
     top: 0; left: 0;
-    width: 200px;
+    width: 280px;
     background: var(--white);
     border: 1px solid var(--sand);
     box-shadow: 0 24px 48px rgba(44,44,42,0.22);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.25s cubic-bezier(0.65,0,0.35,1);
+    visibility: hidden;
+    transition: opacity 0.25s cubic-bezier(0.65,0,0.35,1), visibility 0.25s;
     z-index: 200;
     will-change: transform, opacity;
   }
-  .service-popup.active { opacity: 1; }
+  .service-popup.active { opacity: 1; visibility: visible; }
   .service-popup-img-wrap { width: 100%; aspect-ratio: 4/3; overflow: hidden; background: var(--stone); }
   .service-popup-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; filter: saturate(0.9); }
   .service-popup-label {
@@ -666,11 +777,12 @@
     font-weight: 400;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--taupe);
+    color: #6b5f4e;
+    background: var(--white);
     border-top: 1px solid var(--stone);
   }
   @media (max-width: 480px) {
-    .service-popup { width: 160px; }
+    .service-popup { width: 200px; }
   }
 
   /* ── AWARDS ── */
@@ -717,7 +829,7 @@
     font-size: 0.65rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--taupe);
+    color: #6b5f4e;
     text-align: right;
     flex-shrink: 0;
   }
@@ -734,7 +846,7 @@
     font-family: var(--serif);
     font-size: 1.1rem;
     font-weight: 300;
-    color: var(--sand);
+    color: #6b5f4e;
     letter-spacing: 0.06em;
     font-style: italic;
     transition: color 0.3s;
@@ -768,7 +880,7 @@
     font-size: 0.62rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--taupe);
+    color: var(--sand);
     margin-bottom: 0.3rem;
   }
   .contact-detail a,
@@ -793,7 +905,7 @@
     font-size: 0.62rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--taupe);
+    color: var(--sand);
   }
   .form-field input,
   .form-field textarea,
@@ -878,7 +990,7 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 1rem;
-    color: rgba(155,139,120,0.7);
+    color: var(--sand);
     font-size: 0.72rem;
     letter-spacing: 0.08em;
   }
@@ -1077,6 +1189,7 @@
 </div>
 
 <!-- ── HERO ── -->
+<main>
 <section id="hero" data-theme="light">
   <div class="hero-bg"></div>
   <div class="hero-slider" id="heroSlider">
@@ -1107,49 +1220,9 @@
       <button class="filter-btn" data-filter="industrial">Industrial</button>
     </div>
   </div>
-  <div class="portfolio-grid reveal">
-    <div class="project-card" data-category="residential">
-      <img class="project-img" src="https://images.pexels.com/photos/34277704/pexels-photo-34277704.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Luxury House" loading="lazy" decoding="async">
-      <div class="project-overlay">
-        <h3>Luxury House</h3>
-        <p class="project-meta">Residential · Modern Tropical</p>
-      </div>
-    </div>
-    <div class="project-card" data-category="residential">
-      <img class="project-img" src="https://images.pexels.com/photos/33619257/pexels-photo-33619257.png?auto=compress&cs=tinysrgb&w=1600" alt="Apartment Complex" loading="lazy" decoding="async">
-      <div class="project-overlay">
-        <h3>Apartment Complex</h3>
-        <p class="project-meta">Residential · Contemporary</p>
-      </div>
-    </div>
-    <div class="project-card" data-category="commercial">
-      <img class="project-img" src="https://images.pexels.com/photos/37293743/pexels-photo-37293743.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Office Building" loading="lazy" decoding="async">
-      <div class="project-overlay">
-        <h3>Office Building</h3>
-        <p class="project-meta">Commercial · Modern</p>
-      </div>
-    </div>
-    <div class="project-card" data-category="residential">
-      <img class="project-img" src="https://images.pexels.com/photos/35361403/pexels-photo-35361403.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Villa Design" loading="lazy" decoding="async">
-      <div class="project-overlay">
-        <h3>Villa Design</h3>
-        <p class="project-meta">Residential · Colonial Revival</p>
-      </div>
-    </div>
-    <div class="project-card" data-category="commercial">
-      <img class="project-img" src="https://images.pexels.com/photos/29649754/pexels-photo-29649754.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Restaurant" loading="lazy" decoding="async">
-      <div class="project-overlay">
-        <h3>Restaurant</h3>
-        <p class="project-meta">Commercial · Art Deco</p>
-      </div>
-    </div>
-    <div class="project-card" data-category="industrial">
-      <img class="project-img" src="https://images.pexels.com/photos/28726413/pexels-photo-28726413.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Factory Complex" loading="lazy" decoding="async">
-      <div class="project-overlay">
-        <h3>Factory Complex</h3>
-        <p class="project-meta">Industrial · Functional</p>
-      </div>
-    </div>
+  <div class="card-stack-wrap reveal">
+    <div class="card-stack" id="cardStack" aria-live="polite"></div>
+    <p class="stack-hint">Drag a card left or right to browse projects</p>
   </div>
 </section>
 
@@ -1285,7 +1358,7 @@
       </div>
       <div class="contact-detail">
         <div class="contact-detail-label">WhatsApp / Voice</div>
-        <a href="tel:+94770181763">0770181763</a>
+        <a href="https://wa.me/94770181763?text=Hello%2C%20I%27m%20interested%20in%20your%20architectural%20design%20services.%20I%20would%20like%20to%20discuss%20my%20project%20requirement%20with%20you." target="_blank" rel="noopener noreferrer">0770181763</a>
       </div>
       <div class="contact-detail">
         <div class="contact-detail-label">Voice (Alt.)</div>
@@ -1293,7 +1366,7 @@
       </div>
       <div class="contact-detail">
         <div class="contact-detail-label">Email</div>
-        <a href="mailto:sanjayad7cad@gmail.com">cadexl5577@gmail.com</a>
+        <a href="mailto:cadexl5577@gmail.com">cadexl5577@gmail.com</a>
       </div>
     </div>
     <div class="reveal">
@@ -1344,7 +1417,7 @@
           Thank you — we've emailed you a confirmation. We'll be in touch within two business days.
         </div>
         <div class="form-error" id="formError">
-          Something went wrong sending your enquiry. Please try again, or email us directly at
+          <span id="formErrorMsg">Something went wrong sending your enquiry. Please try again, or email us directly at</span>
           <a href="mailto:cadexl5577@gmail.com" style="color:#e0a99c;text-decoration:underline;">cadexl5577@gmail.com</a>.
         </div>
       </form>
@@ -1353,11 +1426,12 @@
 </section>
 
 <!-- Footer -->
+</main>
 <footer>
   <span>© 2026 D.M.S.K. Dissanayaka — Drafting Technologist. All rights reserved.</span>
   <div class="footer-links">
     <a href="mailto:cadexl5577@gmail.com">Email Us</a>
-    <a href="tel:+94770181763">WhatsApp</a>
+    <a href="https://wa.me/94770181763?text=Hello%2C%20I%27m%20interested%20in%20your%20architectural%20design%20services.%20I%20would%20like%20to%20discuss%20my%20project%20requirement%20with%20you." target="_blank" rel="noopener noreferrer">WhatsApp</a>
   </div>
 </footer>
 
@@ -1615,7 +1689,7 @@
 
     function placeAt(x, y) {
       const rect = popup.getBoundingClientRect();
-      const popW = rect.width || 200;
+      const popW = rect.width || 280;
       const popH = rect.height || 200;
       const maxX = window.innerWidth - popW - 12;
       const maxY = window.innerHeight - popH - 12;
@@ -1650,7 +1724,7 @@
           setContent(item);
           const rect = item.getBoundingClientRect();
           const popRect = popup.getBoundingClientRect();
-          const popW = popRect.width || 200;
+          const popW = popRect.width || 280;
           const popH = popRect.height || 200;
           let x = rect.left + rect.width / 2 - popW / 2;
           let y = rect.top - popH - 14;
@@ -1669,22 +1743,152 @@
     }
   })();
 
-  /* ── PORTFOLIO FILTER ── */
-  const filterBtns = document.querySelectorAll('.filter-btn');
-  const cards = document.querySelectorAll('.project-card');
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      filterBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const f = btn.dataset.filter;
-      cards.forEach(card => {
-        const match = f === 'all' || card.dataset.category === f;
-        card.style.opacity = match ? '1' : '0.25';
-        card.style.pointerEvents = match ? 'auto' : 'none';
-        card.style.transition = 'opacity 0.5s cubic-bezier(0.65,0,0.35,1)';
+  /* ── PORTFOLIO CARD STACK (Tinder-style) ── */
+  (function () {
+    const allProjects = [
+      { title: 'Luxury House', meta: 'Residential · Modern Tropical', category: 'residential', img: 'https://images.pexels.com/photos/34277704/pexels-photo-34277704.jpeg?auto=compress&cs=tinysrgb&w=800' },
+      { title: 'Apartment Complex', meta: 'Residential · Contemporary', category: 'residential', img: 'https://images.pexels.com/photos/33619257/pexels-photo-33619257.png?auto=compress&cs=tinysrgb&w=800' },
+      { title: 'Office Building', meta: 'Commercial · Modern', category: 'commercial', img: 'https://images.pexels.com/photos/37293743/pexels-photo-37293743.jpeg?auto=compress&cs=tinysrgb&w=800' },
+      { title: 'Villa Design', meta: 'Residential · Colonial Revival', category: 'residential', img: 'https://images.pexels.com/photos/35361403/pexels-photo-35361403.jpeg?auto=compress&cs=tinysrgb&w=800' },
+      { title: 'Restaurant', meta: 'Commercial · Art Deco', category: 'commercial', img: 'https://images.pexels.com/photos/29649754/pexels-photo-29649754.jpeg?auto=compress&cs=tinysrgb&w=800' },
+      { title: 'Factory Complex', meta: 'Industrial · Functional', category: 'industrial', img: 'https://images.pexels.com/photos/28726413/pexels-photo-28726413.jpeg?auto=compress&cs=tinysrgb&w=800' }
+    ];
+
+    const stack = document.getElementById('cardStack');
+    if (!stack) return;
+
+    let currentFilter = 'all';
+    let filtered = [];
+    let order = [];
+    let cards = [];
+    let scatter = [];
+    let dragging = false;
+    let startX = 0;
+    let currentX = 0;
+    let topCard = null;
+    const THRESHOLD = 100;
+
+    function scatterFor(i) {
+      return {
+        rot: ((i * 37) % 15) - 7,
+        tx: ((i * 13) % 21) - 10,
+        ty: ((i * 19) % 13) - 6
+      };
+    }
+
+    function rebuild() {
+      filtered = (currentFilter === 'all') ? allProjects.slice() : allProjects.filter(p => p.category === currentFilter);
+      stack.innerHTML = '';
+      cards = filtered.map((p, i) => {
+        const card = document.createElement('div');
+        card.className = 'stack-card';
+        card.innerHTML = '<img src="' + p.img + '" alt="' + p.title + '" loading="lazy" decoding="async"><div class="card-overlay"><h3>' + p.title + '</h3><p>' + p.meta + '</p></div>';
+        stack.appendChild(card);
+        card.addEventListener('pointerdown', onDown);
+        card.addEventListener('pointermove', onMove);
+        card.addEventListener('pointerup', onUp);
+        card.addEventListener('pointercancel', onUp);
+        return card;
+      });
+      scatter = filtered.map((_, i) => scatterFor(i));
+      order = filtered.map((_, i) => i);
+      layout(false);
+    }
+
+    function layout(animate, instantSet) {
+      filtered.forEach((p, i) => {
+        const card = cards[i];
+        if (!card) return;
+        const pos = order.indexOf(i);
+        if (pos === -1) { card.style.display = 'none'; return; }
+        card.style.display = '';
+        card.dataset.pos = pos;
+        card.style.zIndex = (order.length - pos).toString();
+        const sc = scatter[i];
+        if (pos === 0) {
+          card.dataset.top = 'true';
+          card.style.opacity = '1';
+          card.style.pointerEvents = 'auto';
+          card.style.transform = '';
+        } else {
+          delete card.dataset.top;
+          const scale = Math.max(0.86, 1 - pos * 0.04);
+          const ty = pos * 18 + sc.ty;
+          card.style.transform = 'scale(' + scale + ') translateY(' + ty + 'px) rotate(' + sc.rot + 'deg) translateX(' + sc.tx + 'px)';
+          card.style.opacity = pos < 3 ? '1' : '0';
+          card.style.pointerEvents = 'none';
+        }
+        if (instantSet && instantSet.has(i)) {
+          card.style.transition = 'none';
+        } else {
+          card.style.transition = animate
+            ? 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1)'
+            : 'none';
+        }
+      });
+      topCard = cards[order[0]] || null;
+    }
+
+    function onDown(e) {
+      if (!topCard || e.currentTarget !== topCard) return;
+      dragging = true;
+      startX = e.clientX;
+      currentX = 0;
+      topCard.classList.add('is-dragging');
+      try { topCard.setPointerCapture(e.pointerId); } catch (err) {}
+    }
+
+    function onMove(e) {
+      if (!dragging || !topCard) return;
+      currentX = e.clientX - startX;
+      const rot = Math.max(-18, Math.min(18, currentX / 12));
+      topCard.style.transform = 'translate3d(' + currentX + 'px, 0, 0) rotate(' + rot + 'deg)';
+      const fade = Math.min(Math.abs(currentX) / 500, 0.35);
+      topCard.style.opacity = (1 - fade).toString();
+    }
+
+    function onUp(e) {
+      if (!dragging || !topCard) return;
+      dragging = false;
+      topCard.classList.remove('is-dragging');
+      const card = topCard;
+      const swipedIdx = order[0];
+      if (Math.abs(currentX) > THRESHOLD) {
+        const dir = currentX > 0 ? 1 : -1;
+        card.style.transition = 'transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1)';
+        card.style.transform = 'translate3d(' + (dir * 130) + '%, 0, 0) rotate(' + (dir * 28) + 'deg)';
+        card.style.opacity = '0';
+        setTimeout(() => {
+          order.push(order.shift());
+          const instantSet = new Set([swipedIdx]);
+          layout(true, instantSet);
+          requestAnimationFrame(() => {
+            const c = cards[swipedIdx];
+            if (c) c.style.transition = '';
+          });
+          currentX = 0;
+          dragging = false;
+        }, 280);
+      } else {
+        card.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        card.style.transform = '';
+        card.style.opacity = '';
+        currentX = 0;
+      }
+    }
+
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        rebuild();
       });
     });
-  });
+
+    rebuild();
+  })();
 
   /* ── CONTACT FORM ── */
  
@@ -1697,16 +1901,21 @@
     const btnLabel = btn.querySelector('span');
     const successEl = document.getElementById('formSuccess');
     const errorEl = document.getElementById('formError');
+    const errorMsgEl = document.getElementById('formErrorMsg');
 
     successEl.style.display = 'none';
     errorEl.style.display = 'none';
+    if (errorMsgEl) errorMsgEl.textContent = 'Something went wrong sending your enquiry. Please try again, or email us directly at';
 
     const fname = document.getElementById('fname').value.trim();
     const lname = document.getElementById('lname').value.trim();
     const email = document.getElementById('email').value.trim();
 
-    if (!fname || !lname || !email) {
-      errorEl.textContent = 'Please fill in your name and email address before sending.';
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!fname || !lname || !email || !emailOk) {
+      if (errorMsgEl) errorMsgEl.textContent = (!fname || !lname || !email)
+        ? 'Please fill in your name and email address before sending.'
+        : 'Please enter a valid email address.';
       errorEl.style.display = 'block';
       return;
     }
@@ -1744,6 +1953,7 @@
         }
       })
       .catch(() => {
+        if (errorMsgEl) errorMsgEl.textContent = 'Something went wrong sending your enquiry. Please try again, or email us directly at';
         errorEl.style.display = 'block';
         btn.disabled = false;
         btnLabel.textContent = originalLabel;
